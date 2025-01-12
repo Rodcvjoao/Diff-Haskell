@@ -19,15 +19,13 @@ Example:
 runningAverage xs = map (\(sum, count) -> sum / count) $ scanl1 (\(s1, c1) (s2, c2) -> (s1 + s2, c1 + c2)) $ zip xs (repeat 1)
 
 --Gets the hamming distance between two strings.
-hammingaux [] [] cont = cont
-hammingaux (xs) []  cont = cont + length xs
-hammingaux  [] (ys) cont = cont + length ys
-hammingaux (x:xs) (y:ys) cont
-    | x /= y = hammingaux xs ys (cont + 1)
-    | x == y = hammingaux xs ys cont
+hammingaux xs ys cont
+    | (null xs) || (null ys) = cont
+    | (head xs) /= (head ys) = hammingaux (tail xs) (tail ys) (cont + 1)
+    | (head xs) == (head ys) = hammingaux (tail xs) (tail ys) cont
 
 --A simple function to call hamming aux passing the correct parameters to cont
-hamming (xs) (ys) = hammingaux xs ys 0
+hamming (xs) (ys) = hammingaux xs ys $ abs(length xs - length ys)
 
 --Function to read a list of tuples and return their respective hamming distances in a list
 rdtuples (xs) = [fromIntegral(hamming (str1) (str2)) | (str1, str2) <- xs]
@@ -36,3 +34,6 @@ rdtuples (xs) = [fromIntegral(hamming (str1) (str2)) | (str1, str2) <- xs]
 Testing with these parameters
 rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
 -}
+
+func =
+    runningAverage $ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
