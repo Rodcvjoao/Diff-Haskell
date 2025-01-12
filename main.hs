@@ -2,6 +2,10 @@ hammingaux :: String -> String -> Int -> Int
 hamming :: String -> String -> Int
 rdtuples :: [(String, String)] -> [Float]
 runningAverage :: [Float] -> [Float]
+rdfile :: FilePath -> IO [String]
+
+----------------------------------------------------
+rdfile path = fmap lines (readFile path)
 
 {-
 A function that creates a list of tuples where the pairs are (x, 1) (x being the original value of the list) --zip.
