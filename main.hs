@@ -1,6 +1,18 @@
 hammingaux :: String -> String -> Int -> Int
 hamming :: String -> String -> Int
 rdtuples :: [(String, String)] -> [Float]
+runningAverage :: [Float] -> [Float]
+
+{-
+A function that creates a list of tuples where the pairs are (x, 1) (x being the original value of the list) --zip.
+Then, iterates the list adding the tuples to create a accumulative sum necessary for the average --scanl1.
+Lastly, it iterates the output tuples from scanl1 operatin the division of the two numbers --map.
+
+Example:
+    [2, 7, 4, 1] -> [(2,1), (7,1), (4,1), (1,1)] -> [(2,1), (9,2), (13,3), (14,4)] -> [2.0, 4.5, 4.33, 3.5]
+-}
+
+runningAverage xs = map (\(sum, count) -> sum / count) $ scanl1 (\(s1, c1) (s2, c2) -> (s1 + s2, c1 + c2)) $ zip xs (repeat 1)
 
 --Gets the hamming distance between two strings.
 hammingaux [] [] cont = cont
