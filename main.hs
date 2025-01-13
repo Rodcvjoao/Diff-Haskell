@@ -5,6 +5,32 @@ runningAverage :: [Float] -> [Float]
 rdfile :: FilePath -> IO [String]
 isMod :: String -> String -> Bool
 
+modifiedaux a [] = []
+modifiedaux a (x:xs) = (a,x):modifiedaux a xs
+
+tuplehamming [] = []
+tuplehamming (xs) = [(str1, str2, hamming str1 str2) | (str1, str2) <- xs, isMod str1 str2]
+
+tuplemin tup (x:xs)
+    | null xs = if n <= n' then (str1, str2) else (str1', str2')
+    | otherwise = if n <= n' then tuplemin tup xs else tuplemin x xs
+    where (str1, str2, n) = tup
+          (str1', str2', n') = x
+
+listremain tup [] = []
+listremain tup (x:xs)
+    |str2 == x = xs
+    |otherwise = listremain tup (xs)
+    where (str1, str2) = tup
+
+modified xs ys
+    | null xs || null ys = []
+    | otherwise =
+        let th = tuplehamming (modifiedaux (head xs) ys)
+            tuplemod = tuplemin (head th) (th)
+            remaininglist = listremain tuplemod ys
+        in if not (null th) then tuplemod : modified (tail xs) remaininglist else modified (tail xs) ys
+
 ----------------------------------------------------
 rdfile path = fmap lines (readFile path)
 ----------------------------------------------------
@@ -40,9 +66,8 @@ hamming (xs) (ys) = hammingaux xs ys $ abs(length xs - length ys)
 rdtuples (xs) = [fromIntegral(hamming (str1) (str2)) | (str1, str2) <- xs]
 
 {-
-Testing with these parameters
+modifiedaux with these parameters
 rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
 -}
 
-func =
-    runningAverage $ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
+func = runningAverage $ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
