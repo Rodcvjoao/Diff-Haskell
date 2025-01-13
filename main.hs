@@ -3,9 +3,18 @@ hamming :: String -> String -> Int
 rdtuples :: [(String, String)] -> [Float]
 runningAverage :: [Float] -> [Float]
 rdfile :: FilePath -> IO [String]
+isMod :: String -> String -> Bool
 
 ----------------------------------------------------
 rdfile path = fmap lines (readFile path)
+----------------------------------------------------
+
+{-
+A function to verify if a line is modified, i.e, the hamming distance from the two strings is <= than 70% of the size of the string
+-}
+isMod str1 str2 = 
+    let limit = ceiling (0.7 * fromIntegral(length str1))
+    in hamming str1 str2 <= limit
 
 {-
 A function that creates a list of tuples where the pairs are (x, 1) (x being the original value of the list) --zip.
