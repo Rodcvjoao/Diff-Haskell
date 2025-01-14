@@ -8,9 +8,19 @@ rdfile :: FilePath -> IO [String]
 isMod :: String -> String -> Bool
 isEqual :: String -> (String, String) -> Bool
 
+onlySpace xs
+    | null xs = True
+    | head xs == ' ' = onlySpace (tail xs)
+    | otherwise = False
+
+noSpaceList [] = []
+noSpaceList (x:xs)
+    | not (onlySpace x) = x:noSpaceList(xs)
+    | otherwise = noSpaceList(xs)
+
 removesfirstaux str (x:xs)
-    |str == x = xs
-    |otherwise = x:removesfirstaux (str) xs
+    | str == x = xs
+    | otherwise = x:removesfirstaux (str) xs
 
 removesfirst [] (ys) cond = ys
 removesfirst ((x1, x2):xs) (ys) cond
@@ -31,8 +41,8 @@ tuplemin tup (x:xs)
 
 listremain tup [] = []
 listremain tup (x:xs)
-    |str2 == x = xs
-    |otherwise = listremain tup (xs)
+    | str2 == x = xs
+    | otherwise = listremain tup (xs)
     where (str1, str2) = tup
 
 modified xs ys
@@ -85,8 +95,13 @@ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), 
 
 main :: IO ()
 main = do
-    file1 <- rdfile "file1.txt"
-    file2 <- rdfile "file2.txt"
+    spacefile1 <- rdfile "arq1.txt"
+    spacefile2 <- rdfile "arq2.txt"
+
+    let spaces = length spacefile1 - length spacefile2
+
+    let file1 = noSpaceList spacefile1 
+    let file2 = noSpaceList spacefile2
 
     let modifiedResults = modified file1 file2
 
@@ -113,3 +128,7 @@ main = do
             else return ()) 
         modifiedResults 
         averages
+
+    if spaces >= 0
+        then putStrLn $ "\nEspaços adicionados: " ++ show spaces
+    else putStrLn $ "\nEspaços removidos: " ++ show (abs spaces)
