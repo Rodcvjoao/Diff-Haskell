@@ -1,23 +1,12 @@
 import Control.Monad (zipWithM_)
 
-hammingaux :: String -> String -> Int -> Int
-hamming :: String -> String -> Int
-rdtuples :: [(String, String)] -> [Float]
-runningAverage :: [Float] -> [Int] -> [Float]
-rdfile :: FilePath -> IO [String]
-isMod :: String -> String -> Bool
-isEqual :: String -> (String, String) -> Bool
-
 removesfirstaux str (x:xs)
     |str == x = xs
     |otherwise = x:removesfirstaux (str) xs
 
-removesfirst [] (ys) cond = ys
-removesfirst ((x1, x2):xs) (ys) cond
-    | cond = removesfirstaux x1 (removesfirst xs ys True)
-    | otherwise = removesfirstaux x2 (removesfirst xs ys False)
+removesfirst [] (ys) = ys
+removesfirst ((x1, x2):xs) (ys) = removesfirstaux x1 (removesfirst xs ys)
 
-modifiedaux a [] = []
 modifiedaux a (x:xs) = (a,x):modifiedaux a xs
 
 tuplehamming [] = []
@@ -47,10 +36,11 @@ modified xs ys
 rdfile path = fmap lines (readFile path)
 ----------------------------------------------------
 
---A function to verify if a line is modified, i.e, the hamming distance from the two strings is <= than 70% of the size of the string
-
+{-
+A function to verify if a line is modified, i.e, the hamming distance from the two strings is <= than 70% of the size of the string
+-}
 isMod str1 str2 = 
-    let limit = truncate (0.5 * fromIntegral(length str1))
+    let limit = ceiling (0.5 * fromIntegral(length str1))
     in hamming str1 str2 <= limit
 
 isEqual str (str1, str2) = str == str1 && str1 == str2
@@ -85,13 +75,13 @@ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), 
 
 main :: IO ()
 main = do
-    file1 <- rdfile "file1.txt"
-    file2 <- rdfile "file2.txt"
+    file1 <- rdfile "arq1.txt"
+    file2 <- rdfile "arq2.txt"
 
     let modifiedResults = modified file1 file2
 
-    let removed = removesfirst (modifiedResults) file1 True
-    let added = removesfirst (modifiedResults) file2 False
+    let removed = removesfirst (modifiedResults) file1
+    let added = [line | line <- file2, not (any ((== line) . snd) modifiedResults)]
     let unchanged = [line | line <- file1, any (isEqual line) modifiedResults]
 
     let hammingDistances = map (\(str1, str2) -> fromIntegral (hamming str1 str2)) modifiedResults
