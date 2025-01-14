@@ -1,9 +1,12 @@
+import Control.Monad (zipWithM_)
+
 hammingaux :: String -> String -> Int -> Int
 hamming :: String -> String -> Int
 rdtuples :: [(String, String)] -> [Float]
-runningAverage :: [Float] -> [Float]
+runningAverage :: [Float] -> [Int] -> [Float]
 rdfile :: FilePath -> IO [String]
 isMod :: String -> String -> Bool
+isEqual :: String -> (String, String) -> Bool
 
 modifiedaux a [] = []
 modifiedaux a (x:xs) = (a,x):modifiedaux a xs
@@ -42,6 +45,8 @@ isMod str1 str2 =
     let limit = ceiling (0.7 * fromIntegral(length str1))
     in hamming str1 str2 <= limit
 
+isEqual str (str1, str2) = str == str1 && str1 == str2
+
 {-
 A function that creates a list of tuples where the pairs are (x, 1) (x being the original value of the list) --zip.
 Then, iterates the list adding the tuples to create a accumulative sum necessary for the average --scanl1.
@@ -51,7 +56,7 @@ Example:
     [2, 7, 4, 1] -> [(2,1), (7,1), (4,1), (1,1)] -> [(2,1), (9,2), (13,3), (14,4)] -> [2.0, 4.5, 4.33, 3.5]
 -}
 
-runningAverage xs = map (\(sum, count) -> sum / count) $ scanl1 (\(s1, c1) (s2, c2) -> (s1 + s2, c1 + c2)) $ zip xs (repeat 1)
+runningAverage distances indices = zipWith (/) (scanl1 (+) distances) (map fromIntegral indices)
 
 --Gets the hamming distance between two strings.
 hammingaux xs ys cont
@@ -70,4 +75,36 @@ modifiedaux with these parameters
 rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
 -}
 
-func = runningAverage $ rdtuples [("teste", "teste"), ("teste", "twstw"), ("teste", ""), ("", "teste"), ("teste", "haskell")]
+main :: IO ()
+main = do
+    file1 <- rdfile "arq1.txt"
+    file2 <- rdfile "arq2.txt"
+
+    let modifiedResults = modified file1 file2
+
+    let removed = [line | line <- file1, not (any ((== line) . fst) modifiedResults)]
+    let added = [line | line <- file2, not (any ((== line) . snd) modifiedResults)]
+    let unchanged = [line | line <- file1, any (isEqual line) modifiedResults]
+
+    let hammingDistances = map (\(str1, str2) -> fromIntegral (hamming str1 str2)) modifiedResults
+    let averages = runningAverage hammingDistances [1 .. length modifiedResults]
+    
+    putStrLn "Linhas removidas:"
+    mapM_ putStrLn removed
+
+    putStrLn "\nLinhas adicionadas:"
+    mapM_ putStrLn added
+
+    putStrLn "\nLinhas inalteradas:"
+    mapM_ putStrLn unchanged
+
+    putStrLn "\nLinhas modificadas:"
+    zipWithM_ (\(str1, str2) avg -> 
+        if str1 /= str2 
+            then putStrLn $ str1 ++ " -> " ++ str2 ++ " :: Media: " ++ show avg 
+            else return ()) 
+        modifiedResults 
+        averages
+
+
+
