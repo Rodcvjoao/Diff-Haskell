@@ -1,5 +1,12 @@
-#Diff Haskell
+![Diff-Haskell](https://github.com/user-attachments/assets/1b6dd06c-04df-4636-a871-d721f1bf6212)
 
-In this Haskell project, the task given was to create a program that works similar to a Hamming Distance algorithm. 
+# Diff Haskell
+This project intends to be similar (given its proportions) to the Github algorithm that shows changed, added and removed lines when editing code.
 
-The diferences resides in the fact that the compared strings would come from two different files, and the output written on a third file should be, in fact, the average of the previous iterations added to the current hamming distance between the strings.
+This repository has, besides the haskell files, a bunch of .txt (including previous versions of the code itself) where the user can use them to compare the changes and see the algorithm running.
+
+## Running the code
+
+1. First step is to git clone the repository to your local computer (URL: https://github.com/Rodcvjoao/Diff-Haskell.git)
+2. Second is to compile the code with: **ghc main.hs** (If you run into troubles, try adding functions.hs to the compiling line)
+3. Lastly, run ./main *filename1* *filename2*
